@@ -11,7 +11,7 @@ from shiny.express import input, ui
 ui.page_opts(title="Financial Dashboard", fillable=True)
 
 with ui.sidebar(open="desktop"):
-    ui.input_slider("salary", "Salary", min=0, max=20000, value=8000)
+    ui.input_slider("salary", "Salary", min=0, max=20000, value=8000, step=500)
     ui.input_slider(
         "interest",
         "Interest Rate",
