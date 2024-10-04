@@ -87,15 +87,9 @@ with ui.layout_columns(col_widths=[6, 6, 12]):
         with ui.card_header(class_="d-flex justify-content-between align-items-center"):
             "Future Value"
         
-        # with ui.popover(title="Add a color variable"):
-        #     ICONS["ellipsis"]
-        #     ui.input_radio_buttons(
-        #         "tip_perc_y",
-        #         "Split by:",
-        #         ["sex", "smoker", "day", "time"],
-        #         selected="day",
-        #         inline=True,
-        #     )
+        with ui.popover(title="Toggles"):
+            ICONS["ellipsis"]
+            ui.input_checkbox("inflation_toggle", "Show Inflation", True)
 
         @render_plotly
         def fv_render():
@@ -121,15 +115,18 @@ with ui.layout_columns(col_widths=[6, 6, 12]):
             fig.add_trace(go.Scatter(
                 x=years, y=money_growth, mode='lines', name='Money Growth',
                 fill='tozeroy', fillcolor='rgba(0, 0, 255, 0.2)',  # Blue fill with transparency
-                line=dict(color='blue')
+                line=dict(color='blue'),
+                showlegend=True  # Ensure legend is shown
             ))
 
             # Add the inflation line with a filled area
-            fig.add_trace(go.Scatter(
-                x=years, y=inflation_value, mode='lines', name='Inflation',
-                fill='tozeroy', fillcolor='rgba(255, 0, 0, 0.2)',  # Red fill with transparency
-                line=dict(color='red')
-            ))
+            if input.inflation_toggle():
+                fig.add_trace(go.Scatter(
+                    x=years, y=inflation_value, mode='lines', name='Inflation',
+                    fill='tozeroy', fillcolor='rgba(255, 0, 0, 0.2)',  # Red fill with transparency
+                    line=dict(color='red'),
+                    showlegend=True  # Ensure legend is shown
+                ))
 
             # Add titles and labels
             fig.update_layout(
@@ -137,6 +134,13 @@ with ui.layout_columns(col_widths=[6, 6, 12]):
                 xaxis_title="Years",
                 yaxis_title="Money Value",
                 legend_title="Growth vs Inflation",
+                legend=dict(
+                    yanchor="top",
+                    y=-0.2,  # Place the legend below the graph
+                    xanchor="center",
+                    x=0.5,  # Center the legend horizontally
+                    orientation="h"  # Horizontal legend layout
+                )
             )
             return fig
 
