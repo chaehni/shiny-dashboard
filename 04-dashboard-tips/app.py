@@ -57,31 +57,79 @@ with ui.layout_columns(col_widths=[6, 6, 12]):
     with ui.card(full_screen=True):
         with ui.card_header(class_="d-flex justify-content-between align-items-center"):
             "Income/Expense Distribution"
-            
+
+        with ui.popover(title="Toggles"):
+            ICONS["ellipsis"]
+            ui.input_radio_buttons(  
+                "radio_earnings_type",  
+                "Select chart type",  
+                {"1": "Sankey", "2": "Bar Chart"},  
+)            
         @render_plotly
-        def sankey_render():
+        def chart_render():
             import plotly.graph_objects as go
-            fig = go.Figure(data=[go.Sankey(
-                node = dict(
-                pad = 15,
-                thickness = 20,
-                line = dict(color = "black", width = 0.5),
-                label = ["Gehalt", "Budget", "Miete", "Transport", "Haushalt", "Ersparnis"],
-                color = "blue"
-                ),
-                link = dict(
-                source = [0, 1, 1, 1, 1], # indices correspond to labels, eg A1, A2, A1, B1, ...
-                target = [1, 2, 3, 4, 5],
-                value = [input.salary(), 2500, 1000, 1500, input.salary()- 5000]
-            ))])
+            if input.radio_earnings_type() == "1":
+                fig = go.Figure(data=[go.Sankey(
+                    node = dict(
+                    pad = 15,
+                    thickness = 20,
+                    line = dict(color = "black", width = 0.5),
+                    label = ["Gehalt", "Budget", "Miete", "Transport", "Haushalt", "Ersparnis"],
+                    color = "blue"
+                    ),
+                    link = dict(
+                    source = [0, 1, 1, 1, 1], # indices correspond to labels, eg A1, A2, A1, B1, ...
+                    target = [1, 2, 3, 4, 5],
+                    value = [input.salary(), 2500, 1000, 1500, input.salary()- 5000]
+                ))])
 
-            fig.update_layout(
-                legend=dict(
-                    orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5
+                fig.update_layout(
+                    legend=dict(
+                        orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5
+                    )
                 )
-            )
+                
+                fig._config = fig._config | {'displayModeBar': False}
+                return fig
+            
+            elif input.radio_earnings_type() == "2":
+                # Sample data for income and spendings
+                categories = ['Transport', 'Food', 'Rent', 'Entertainment', 'Utilities', 'Miscellaneous']
+                incomes = [3000]  # Total earnings for the period
+                spendings = [-500, -700, -1200, -300, -400, -150]  # Example spendings for each category
 
-            return fig
+                # Create a bar chart
+                fig = go.Figure()
+
+                # Add income bars (green)
+                fig.add_trace(go.Bar(
+                    x=['Income'],
+                    y=incomes,
+                    name='Income',
+                    marker_color='green'
+                ))
+
+                # Add spendings bars (red)
+                fig.add_trace(go.Bar(
+                    x=categories,
+                    y=spendings,
+                    name='Spendings',
+                    marker_color='red'
+                ))
+
+                # Update layout
+                fig.update_layout(
+                    title='Incomes and Spendings by Category',
+                    barmode='group',
+                    yaxis_title='Amount ($)',
+                    xaxis_title='Category',
+                    yaxis=dict(showgrid=True),
+                    showlegend=True
+                )
+                fig._config = fig._config | {'displayModeBar': False}
+                return fig
+
+        
 
     with ui.card(full_screen=True):
         with ui.card_header(class_="d-flex justify-content-between align-items-center"):
@@ -89,7 +137,7 @@ with ui.layout_columns(col_widths=[6, 6, 12]):
         
         with ui.popover(title="Toggles"):
             ICONS["ellipsis"]
-            ui.input_checkbox("inflation_toggle", "Show Inflation", True)
+            ui.input_switch("inflation_toggle", "Show Inflation", True)
 
         @render_plotly
         def fv_render():
@@ -142,6 +190,8 @@ with ui.layout_columns(col_widths=[6, 6, 12]):
                     orientation="h"  # Horizontal legend layout
                 )
             )
+            fig._config = fig._config | {'displayModeBar': False}
+            fig.update_layout(modebar_remove=['zoom', 'pan', 'toImage'])
             return fig
 
 ui.include_css(app_dir / "styles.css")
