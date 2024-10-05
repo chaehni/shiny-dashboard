@@ -157,7 +157,7 @@ with ui.navset_pill_list(id="pill", widths=(2,10)):
                     # Parameters
                     initial_amount = 20000  # Initial investment
                     years = np.arange(0, 30, 1)  # Time period in years
-                    interest_rate = input.interest() /100  # Interest rate from user input
+                    interest_rate = 0.07  # Interest rate from user input
                     inflation_rate = 0.02  # Inflation rate (2%)
 
                     # Calculate compound interest
